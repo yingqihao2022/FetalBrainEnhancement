@@ -6,7 +6,6 @@ import os
 import torch
 import torch.nn.functional as F
 
-
 def process(data_path, mask_path = None, use_mask = True):
     brain = nib.load(data_path).get_fdata()
     if use_mask:
@@ -14,8 +13,8 @@ def process(data_path, mask_path = None, use_mask = True):
     else:
         mask = (brain != 0)
 
-    matrix = np.full((210, 210, 210), np.min(brain))
-    matrix = np.full((135, 189, 155), np.min(brain))
+    # matrix = np.full((210, 210, 210), np.min(brain)) 
+    matrix = np.full((135, 189, 155), np.min(brain)) # assume your brain size is (135, 189, 155)
     brain = brain - matrix
     brain = brain * mask
 
@@ -29,8 +28,8 @@ def process(data_path, mask_path = None, use_mask = True):
     nib.save(brain_save, output_path)
 
 
-datapath = Path("/data/birth/lmx/work/Class_projects/course5/work/vae_hj/new_output/38w")
-maskpath = Path("/data/birth/lmx/work/Class_projects/course5/dataset/Fetal_Brain_dataset/GMH_IVH_data/mask") # optional 
+datapath = Path("/your/brain/path")
+maskpath = Path("/your/mask/path") # optional 
 
 datapaths = sorted([datapath / f for f in os.listdir(datapath)])
 maskpaths = sorted([maskpath / f for f in os.listdir(maskpath)])
