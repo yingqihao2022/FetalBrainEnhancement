@@ -9,6 +9,7 @@ import sys
 sys.path.append('/your_path')
 from autoencoderkl import AutoencoderKL
 import os
+from transfer import *
 
 torch.cuda.set_device(5) 
 def normalize_image(imgall, imgresall, mask, norm_ch='all'):
@@ -136,5 +137,6 @@ for new_id in tqdm(new_id_list):
         #output[high_copy_block>0]=output[high_copy_block>0]*high_std+high_mean
         blocks[ii,:]=output
     vol_brain, vol_count = block2brain(blocks,ind_block,high_copy>0)
+    
     
     nb.Nifti1Image(vol_brain,img_affine).to_filename('your/path/'+new_id)
