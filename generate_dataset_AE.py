@@ -62,7 +62,7 @@ def block_ind(mask, sz_block=64, sz_pad=0):
     ind_block = ind_block.astype(int)
     return ind_block, ind_brain
 
-dpRoot='/your/path'
+dpRoot='/your/dpRoot'
 
 df_train = pd.DataFrame({'index': [f'{i+1}' for i in range(8)]})
 
@@ -91,9 +91,10 @@ df_val.insert(loc=10, column='seg_path', value=0)
 
 index_train=0
 index_val=0
-for new_id in tqdm(range(1, 2)):
+for new_id in tqdm(range(400)):
+    # Example Path: /dpRoot/train/fb0001_brain.nii.gz
     if(new_id <= 320):
-        data_path=dpRoot+'/real_train/'+'fb'+ str(new_id).zfill(4)
+        data_path=dpRoot+'/train/'+'fb'+ str(new_id).zfill(4)
     else:
         data_path=dpRoot+'/val/' + 'fb'+ str(new_id).zfill(4)
     if not os.path.exists(data_path):  
@@ -104,8 +105,6 @@ for new_id in tqdm(range(1, 2)):
     mask = high_expand > 0
     high_mean,high_std= normalize_image(high_expand,high_expand,mask)
     ind_block, ind_brain = block_ind(mask,64,0)
-
-    # if(new_id > 320):
     for crop_number in range(0,ind_block.shape[0]):
         print("val",index_val)
         df_val.loc[index_val,'high_path']=data_path+'/fb'+ str(new_id).zfill(4)+'_brain.nii.gz'
@@ -119,7 +118,6 @@ for new_id in tqdm(range(1, 2)):
         df_val.loc[index_val,'shape4']=ind_block[crop_number,4]
         df_val.loc[index_val,'shape5']=ind_block[crop_number,5]
         index_val=index_val+1
-# else: 
     for crop_number in range(0,ind_block.shape[0]):
         print("train",index_train)
         df_train.loc[index_train,'high_path']=data_path+'/fb'+ str(new_id).zfill(4)+'_brain.nii.gz'
