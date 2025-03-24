@@ -7,3 +7,5 @@ https://github.com/AntanasKascenas/DenoisingAE
 1. Run dataprocess.py for preprocessing
 2. Run Test.py for inference
 
+## Download pretrained model with the link below
+    https://drive.google.com/drive/folders/1hEEqLr6BqC0rmsNaeANRAApijkixTt79?usp=sharing
