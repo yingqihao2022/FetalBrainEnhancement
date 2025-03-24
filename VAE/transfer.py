@@ -6,7 +6,7 @@ import os
 import torch
 import torch.nn.functional as F
 
-def process(data_path, mask_path = None, use_mask = True):
+def process_zero(data_path, mask_path = None, use_mask = True):
     brain = nib.load(data_path).get_fdata()
     if use_mask:
         mask = nib.load(mask_path).get_fdata()
@@ -36,4 +36,4 @@ if __name__ == "__main__":
     print(len(datapaths), len(maskpaths))
     # assert len(datapaths) == len(maskpaths)
     for idx in tqdm(range(len(datapaths))):
-        process(datapaths[idx], maskpaths[idx], use_mask = False)
+        process_zero(datapaths[idx], maskpaths[idx], use_mask = False)
