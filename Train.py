@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn import L1Loss
-# from dataset import *
 from torch.utils.data import DataLoader
 import os
 import sys
