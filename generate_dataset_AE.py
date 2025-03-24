@@ -62,7 +62,7 @@ def block_ind(mask, sz_block=64, sz_pad=0):
     ind_block = ind_block.astype(int)
     return ind_block, ind_brain
 
-dpRoot='/data/birth/lmx/work/Class_projects/course5/work/vae_hj/new_normal_data_copy'
+dpRoot='/your/path'
 
 df_train = pd.DataFrame({'index': [f'{i+1}' for i in range(8)]})
 
@@ -96,9 +96,8 @@ for new_id in tqdm(range(1, 2)):
         data_path=dpRoot+'/real_train/'+'fb'+ str(new_id).zfill(4)
     else:
         data_path=dpRoot+'/val/' + 'fb'+ str(new_id).zfill(4)
-    # assert 路径是否存在
     if not os.path.exists(data_path):  
-        print('路径：', data_path, '不存在')
+        print('path do not exit')
         continue  
     high=nb.load(data_path+'/fb'+ str(new_id).zfill(4)+'_brain.nii.gz').get_fdata()
     high_expand= np.expand_dims(high, -1)
