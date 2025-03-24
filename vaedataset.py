@@ -10,15 +10,13 @@ def random_flip_3d(image):
         image = np.flip(image, axis).copy()
     return image
 
-# 上面这个函数可以考虑删去做消融实验
-
 class UKBDataset(torch.utils.data.Dataset):
   def __init__(self, setname):
     self.setname=setname
     if setname=='train':
-        t1_data=pd.read_json("/data/birth/lmx/work/Class_projects/course5/work/vae_hj/new_single_train_AE.json", dtype={'high_path': str, 'seg_path': str})
+        t1_data=pd.read_json("/train_AE.json", dtype={'high_path': str, 'seg_path': str})
     elif setname=='val':
-        t1_data=pd.read_json("/data/birth/lmx/work/Class_projects/course5/work/vae_hj/new_single_val_AE.json", dtype={'high_path': str, 'seg_path': str})
+        t1_data=pd.read_json("/val_AE.json", dtype={'high_path': str, 'seg_path': str})
     self.t1_data = t1_data
 
   def __len__(self):
@@ -34,7 +32,6 @@ class UKBDataset(torch.utils.data.Dataset):
     
     T2high=nb.load((self.t1_data.iat[index,1])).get_fdata()
     T2high[T2high>0]= (T2high[T2high>0]- self.t1_data.iat[index,2]) / self.t1_data.iat[index,3]
-    # 这里是归一化
     shift_num_1=random.choice([-3,-2,-1,0,1,2,3])
     shift_num_2=random.choice([-3,-2,-1,0,1,2,3])
     shift_num_3=random.choice([-3,-2,-1,0,1,2,3])
