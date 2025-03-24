@@ -8,13 +8,6 @@ import torch.nn.functional as F
 from block import block_ind
 import cv2
 
- 
-# def apply_bilateral_filter_3d(data, d=5, sigma_color=75, sigma_space=75):  
-#     depth = data.shape[0]  
-#     filtered_data = np.zeros_like(data, dtype=data.dtype)  
-#     for i in range(depth):  
-#         filtered_data[i] = cv2.bilateralFilter(data[i], d, sigma_color, sigma_space)  
-#     return filtered_data
 def normalise_percentile(volume):  
 
     v = volume.reshape(-1)  
@@ -60,7 +53,6 @@ def process_patient(path, target_path):
         width_start = ind_block[i][4]
         width_end = ind_block[i][5]
 
-        # 获取切片并进行插值 
         brain_block[i] = brain[depth_start:depth_end + 1,
                          height_start:height_end + 1, 
                          width_start:width_end + 1]
@@ -78,24 +70,16 @@ def process_patient(path, target_path):
 def preprocess(datapath: Path):
 
 
-    targetpath = Path("/data/birth/lmx/work/Class_projects/course5/work/fetal/Data/data_original/new_disease2")
+    targetpath = Path("/Data/test")
     targetpath.mkdir(parents=True, exist_ok=True)
     paths = sorted([f for f in os.listdir(datapath)])
 
-    # i = 0
     for source_path in tqdm(paths):
         full_source_path = datapath / source_path  
-        # i += 1
-        # if(i < 390):
-        #     new_targetpath = targetpath / "real_train"
-        # else: 
-        #     new_targetpath = targetpath / "train_for_test"
         target_path = os.path.join(targetpath, f"{source_path[:6]}")
         process_patient(full_source_path, target_path)
     
-    
 if __name__ == "__main__":
     
-    datapath = Path("/data/birth/lmx/work/Class_projects/course5/dataset/Fetal_Brain_dataset/new_5_diseases/disease2_final2")
-
+    datapath = Path("/path/to/your/data")
     preprocess(datapath)
