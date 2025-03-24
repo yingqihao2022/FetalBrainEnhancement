@@ -1,5 +1,5 @@
 # DAE implemented in 3D
-## The original implemention of 2D is in the following link.
+## The original implemention of 2D DAE is in the following link.
 ```bash
 https://github.com/AntanasKascenas/DenoisingAE
 ```
