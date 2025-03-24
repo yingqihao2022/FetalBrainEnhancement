@@ -5,15 +5,12 @@ import nibabel as nb
 import pandas as pd
 import copy
 from tqdm import tqdm
-#model
 import sys
-sys.path.append('/data/birth/lmx/work/Class_projects/course5/dataset/Fetal_Brain_dataset/VAE_denoise')
+sys.path.append('/your_path')
 from autoencoderkl import AutoencoderKL
 import os
 
-
 torch.cuda.set_device(5) 
-
 def normalize_image(imgall, imgresall, mask, norm_ch='all'):
     imgall_norm = copy.deepcopy(imgall)
     imgresall_norm = copy.deepcopy(imgresall)
@@ -88,34 +85,14 @@ def block2brain(blocks, inds, mask):
     return vol_brain, vol_count 
 
 
-dpRoot='/data/birth/lmx/data/datasets/huaxi_alats/37w/'
+dpRoot='/your/dpRoot'
 # Function to list all file names in a given directory
 
 def list_files_in_directory(directory_path):
 
     file_names = [f for f in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, f))]
     return file_names
-new_id_list=list_files_in_directory(dpRoot)
-
-
-# def list_files_in_directory(directory_path, start_id, end_id):   
-#     file_names = [f for f in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, f))]  
-#     filtered_files = []  
-#     for file_name in file_names:  
-#         if file_name.startswith("pa") and file_name.endswith(".nii.gz"):  
-#             try:  
-#                 file_id = int(file_name[2:5])  
-#                 if start_id <= file_id <= end_id:  
-#                     filtered_files.append(file_name)  
-#             except ValueError:  
-#                 continue  
-    
-#     return filtered_files  
-# start_id = 55
-# end_id = 58
-# new_id_list = list_files_in_directory(dpRoot, start_id, end_id)  
-# print("Number of files:", len(new_id_list))  
-
+new_id_list=list_files_in_directory(dpRoot) 
 
 for new_id in tqdm(new_id_list):
     data_path=dpRoot+new_id
@@ -131,10 +108,6 @@ for new_id in tqdm(new_id_list):
     ind_block, ind_brain = block_ind(mask,64,0)
 
     high[high>0]= (high[high>0]- high_mean) / high_std
-
-    # age=(age-140)/160
-    # age = np.full((1, 1, 64, 64, 64), age)
-    # age = torch.tensor(age, dtype=torch.float32)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     net= AutoencoderKL(
@@ -158,19 +131,10 @@ for new_id in tqdm(new_id_list):
         high_block = torch.tensor(high_block, dtype=torch.float32)
         with torch.no_grad():
            output,a,b = net(high_block.to(device))
-        
-        # if ii==1:
-        #     eps = torch.randn_like(b)
-        #     z_vae = a + eps * b
-        #     z_vae=z_vae.to('cpu').numpy().reshape(4,16,16,16)
-        #     nb.Nifti1Image(z_vae[0,:,:,:],img_affine).to_filename('/data/birth/yhj/fetal_SR/LDM_0727/autoencoder_patch/latent0.nii.gz')
-        #     nb.Nifti1Image(z_vae[1,:,:,:],img_affine).to_filename('/data/birth/yhj/fetal_SR/LDM_0727/autoencoder_patch/latent1.nii.gz')
-        #     nb.Nifti1Image(z_vae[2,:,:,:],img_affine).to_filename('/data/birth/yhj/fetal_SR/LDM_0727/autoencoder_patch/latent2.nii.gz')
-        #     nb.Nifti1Image(z_vae[3,:,:,:],img_affine).to_filename('/data/birth/yhj/fetal_SR/LDM_0727/autoencoder_patch/latent3.nii.gz')
 
         output=output.to('cpu').numpy().reshape(64,64,64)
         #output[high_copy_block>0]=output[high_copy_block>0]*high_std+high_mean
         blocks[ii,:]=output
     vol_brain, vol_count = block2brain(blocks,ind_block,high_copy>0)
     
-    nb.Nifti1Image(vol_brain,img_affine).to_filename('/data/birth/lmx/work/Class_projects/course5/work/vae_hj/new_output/37w/'+new_id)
+    nb.Nifti1Image(vol_brain,img_affine).to_filename('your/path/'+new_id)
