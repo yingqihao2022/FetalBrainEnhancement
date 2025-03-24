@@ -6,4 +6,4 @@
     We have provided our pretrained model.
 ## Download pretrained model with the link below
 ```bash
-    https://drive.google.com/drive/folders/1hEEqLr6BqC0rmsNaeANRAApijkixTt79?usp=sharing
+https://drive.google.com/drive/folders/1hEEqLr6BqC0rmsNaeANRAApijkixTt79?usp=sharing
