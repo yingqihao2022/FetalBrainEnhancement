@@ -113,7 +113,7 @@ if __name__ == "__main__":
     print('using device:', device)  
     model = self2self(1, 0.3).to(device)  
     optimizer = optim.Adam(model.parameters(), lr=1e-4)   
-    dataset_path = "/data/birth/lmx/work/Class_projects/course5/dataset/Fetal_Brain_dataset/Normal_data/img"  
+    dataset_path = "path/to/your/data"  
     dataset = NiftiDataset(dataset_path)  
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True)  
     p = 0.3  
@@ -161,7 +161,6 @@ if __name__ == "__main__":
                     pred_idx = 0  
                     for d in range(vol_shape[0]):  
                         slice_data = dataset[d].unsqueeze(0)  # (1, 1, H, W)  
-                        # 跳过全0切片，但在结果中要占位  
                         if torch.all(slice_data == 0):  
                             pred_idx += 1  
                             continue  
