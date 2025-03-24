@@ -7,7 +7,6 @@ from torch.utils.data import DataLoader
 import os
 import sys
 sys.path.append('/your/path')
-# from generative.networks.nets import AutoencoderKL, PatchDiscriminator
 from autoencoderkl import AutoencoderKL
 from adversarial_loss import PatchAdversarialLoss
 from perceptual import PerceptualLoss
@@ -63,17 +62,11 @@ autoencoder_warm_up_n_epochs = 5
 #optimizer
 optimizer_g = torch.optim.Adam(params=autoencoder.parameters(), lr=0.0005)#1e-4
 scheduler =  torch.optim.lr_scheduler.CosineAnnealingLR(optimizer =optimizer_g,T_max=n_epochs)
-#optimizer_d = torch.optim.Adam(params=discriminator.parameters(), lr=0.00005)#1e-4
-# optimizer_s = torch.optim.Adam(params=net.parameters(), lr=0.00005)
 
 #Train
 log=np.zeros([n_epochs,8])
 for epoch in tqdm(range(st_epoch+1, n_epochs+1)):
     epoch_recon_loss_list = []
-    # epoch_gen_loss_list = []
-    # epoch_disc_loss_list = []
-    # epoch_dice_loss_list = []
-
     autoencoder.train()
 
     for batch, data in enumerate(loader_train, 1):
@@ -86,7 +79,6 @@ for epoch in tqdm(range(st_epoch+1, n_epochs+1)):
         kl_loss = KL_loss(z_mu, z_sigma)
         recons_loss = l1_loss(reconstruction.float(), images.float())
         p_loss = loss_perceptual(reconstruction.float(), images.float())
-
         loss_g = recons_loss + kl_weight * kl_loss + perceptual_weight * p_loss #+ segloss
 
         '''
@@ -127,16 +119,11 @@ for epoch in tqdm(range(st_epoch+1, n_epochs+1)):
 
     with torch.no_grad():
         autoencoder.eval()
-        #discriminator.eval()
         epoch_recon_loss_list = []
-        # epoch_gen_loss_list = []
-        # epoch_disc_loss_list = []
-        # epoch_dice_loss_list = []
         for batch, data in enumerate(loader_val, 1):
 
             images = data['high'].to(device) 
             reconstruction, z_mu, z_sigma = autoencoder(images)
-     
             kl_loss = KL_loss(z_mu, z_sigma)
             recons_loss = l1_loss(reconstruction.float(), images.float())
             epoch_recon_loss_list += [recons_loss.item()]
