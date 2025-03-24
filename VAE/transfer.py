@@ -26,6 +26,12 @@ def process_zero(data_path, mask_path = None, use_mask = True):
     output_path = output_dir / f"{data_path}" 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     nib.save(brain_save, output_path)
+def process_brain(brain):
+    matrix = np.full((135, 189, 155), np.min(brain)) # assume your brain size is (135, 189, 155)
+    mask = (brain != 0)
+    brain = brain - matrix
+    brain = brain * mask
+    return brain
 
 if __name__ == "__main__":  
     datapath = Path("/your/brain/path")
