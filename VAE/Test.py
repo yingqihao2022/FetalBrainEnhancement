@@ -137,6 +137,6 @@ for new_id in tqdm(new_id_list):
         #output[high_copy_block>0]=output[high_copy_block>0]*high_std+high_mean
         blocks[ii,:]=output
     vol_brain, vol_count = block2brain(blocks,ind_block,high_copy>0)
-    
+    vol_brain = transfer_brain(brain)
     
     nb.Nifti1Image(vol_brain,img_affine).to_filename('your/path/'+new_id)
