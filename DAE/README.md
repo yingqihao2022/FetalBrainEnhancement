@@ -4,8 +4,6 @@
 https://github.com/AntanasKascenas/DenoisingAE
 ```
 # Usage
-## 1. Preprocessing
-Run dataprocess.py for preprocessing
-## 2. Inference 
-Run Test.py for inference
+1. Run dataprocess.py for preprocessing
+2. Run Test.py for inference
 
