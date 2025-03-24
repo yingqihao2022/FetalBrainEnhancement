@@ -16,14 +16,9 @@ from model import self2self
 from tqdm import tqdm
 class NiftiDataset(Dataset):  
     def __init__(self, file_path):  
-        # 读取原始nii，并保留头信息  
         self.nii_obj = nib.load(file_path)  
-        vol = self.nii_obj.get_fdata()  # 原始形状 (D, H, W)  
-        # 转置为 (W, H, D)  
-        vol = np.transpose(vol, (2, 1, 0))  
-        
-        
-        # 存为 (W, 1, H, D)  
+        vol = self.nii_obj.get_fdata() 
+        vol = np.transpose(vol, (2, 1, 0))   
         self.vol = np.expand_dims(vol, axis=1)  
 
     def __len__(self):  
@@ -92,9 +87,7 @@ class NewNiftiDataset(Dataset):
         return torch.FloatTensor(slice_3d), file_id  
 
 def pad_h_and_w(tensor, desired_size=512):  
-    _, _, H, W = tensor.shape  
-
-    # 计算需要填充的量  
+    _, _, H, W = tensor.shape   
     pad_h_total = max(desired_size - H, 0)  
     pad_w_total = max(desired_size - W, 0)  
 
@@ -103,16 +96,12 @@ def pad_h_and_w(tensor, desired_size=512):
     pad_left = pad_w_total // 2  
     pad_right = pad_w_total - pad_left  
 
-    # F.pad 的参数顺序是 (left, right, top, bottom)  
     tensor_padded = F.pad(tensor, (pad_left, pad_right, pad_top, pad_bottom))  
     return tensor_padded, (pad_top, pad_bottom, pad_left, pad_right)  
 
 def unpad_h_and_w(tensor, pad_info):  
     pad_top, pad_bottom, pad_left, pad_right = pad_info  
     _, _, H, W = tensor.shape  
-
-    # 先去掉上下的pad  
-    # 在索引时, 维度顺序 (B, C, H, W), 因此 H 维索引用 [:, :, top : H - bottom]  
     unpad_h = slice(pad_top, H - pad_bottom if pad_bottom > 0 else None)  
     unpad_w = slice(pad_left, W - pad_right if pad_right > 0 else None)  
     return tensor[:, :, unpad_h, unpad_w]  
@@ -122,55 +111,34 @@ if __name__ == "__main__":
     dtype = torch.float32  
     device = torch.device('cuda') if USE_GPU and torch.cuda.is_available() else torch.device('cpu')  
     print('using device:', device)  
-
-    # 模型与优化器  
     model = self2self(1, 0.3).to(device)  
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)  
-
-    # 数据集与DataLoader  
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)   
     dataset_path = "/data/birth/lmx/work/Class_projects/course5/dataset/Fetal_Brain_dataset/Normal_data/img"  
     dataset = NiftiDataset(dataset_path)  
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True)  
-
-    # 超参数  
     p = 0.3  
     NPred = 100  
     max_iters = 500000  
-
-    # 从dataset中获取头文件和affine以在保存时保持一致  
     original_nii = dataset.nii_obj  
     original_affine = original_nii.affine  
     original_header = original_nii.header  
     
     for itr in range(max_iters):  
-        for batch_data in dataloader:  
-            # batch_data的shape: (1, 1, H, W)  
-            # 若该切片全0，跳过  
+        for batch_data in dataloader:   
             if torch.all(batch_data == 0):  
                 continue  
 
             batch_data = batch_data.to(device)  
             model.train()  
 
-            # 生成brain_mask: 输入>0的地方为1，否则0  
             brain_mask = (batch_data > 0).float()  
-
-            # 在H、W两个维度 pad到 (512, 512)  
             batch_data_padded, pad_info = pad_h_and_w(batch_data, desired_size=512)  
-
-            # 生成drop mask  
             p_mtx = torch.rand_like(batch_data_padded)  
-            drop_mask = (p_mtx > p).float() * 0.7  
-
-            # 前向  
+            drop_mask = (p_mtx > p).float() * 0.7   
             img_input = batch_data_padded * drop_mask  
-            output_padded = model(img_input, drop_mask)  
-
-            # 去除两维pad  
+            output_padded = model(img_input, drop_mask)   
             output_unpadded = unpad_h_and_w(output_padded, pad_info)  
-            drop_mask_unpad = unpad_h_and_w(drop_mask, pad_info)  
-
-            # 仅在 (1 - drop_mask_unpad) & brain_mask 处计算loss  
+            drop_mask_unpad = unpad_h_and_w(drop_mask, pad_info)   
             combined_mask = (1 - drop_mask_unpad) * brain_mask  
             if torch.sum(combined_mask) < 1e-6:  
                 continue  
@@ -179,14 +147,10 @@ if __name__ == "__main__":
 
             optimizer.zero_grad()  
             loss.backward()  
-            optimizer.step()  
-
-            # 如仅测试可去掉此break  
+            optimizer.step()    
             break  
 
         print(f"Iteration {itr+1}, loss = {loss.item()*100:.4f}")  
-
-        # 每1000次迭代保存一次模型和预测结果  
         if (itr + 1) % 1000 == 0:  
             model.eval()  
             vol_shape = dataset.vol.shape  # (W, 1, H, D)  
@@ -202,41 +166,25 @@ if __name__ == "__main__":
                             pred_idx += 1  
                             continue  
 
-                        slice_data = slice_data.to(device)  
-
-                        # 测试时也生成brain_mask  
+                        slice_data = slice_data.to(device)   
                         brain_mask_test = (slice_data > 0).float()  
-
-                        # pad到 (512, 512)  
                         slice_data_padded, pad_info = pad_h_and_w(slice_data, desired_size=512)  
-
                         p_mtx = torch.rand_like(slice_data_padded)  
                         mask_test = (p_mtx > p).float() * 0.7  
-                        out_test_padded = model(slice_data_padded * mask_test, mask_test)  
-
-                        # 去除两维pad  
+                        out_test_padded = model(slice_data_padded * mask_test, mask_test)   
                         out_test_unpad = unpad_h_and_w(out_test_padded, pad_info)  
-
-                        # 只保留brain_mask=1的区域  
                         out_test_unpad = out_test_unpad * brain_mask_test  
-
                         out_np = out_test_unpad.cpu().numpy()[0, 0]  # (H, W)  
                         sum_preds[pred_idx] += out_np  
                         pred_idx += 1  
 
-            # 累加结果求平均  
             avg_preds = sum_preds / float(NPred)  
             norm_min, norm_max = avg_preds.min(), avg_preds.max()  
-
-            # 恢复形状 (W, 1, H, D)  
             avg_preds_3d = np.expand_dims(avg_preds, axis=1)  
-
-            # 再转回 (D, H, W)  
             avg_preds_3d = np.squeeze(avg_preds_3d, axis=1)  # (W, H, D)  
             avg_preds_3d = np.transpose(avg_preds_3d, (2, 1, 0))  # (D, H, W)  
-
-            # 保持原头信息  
+  
             out_nii = nib.Nifti1Image(avg_preds_3d, affine=original_affine, header=original_header)  
-            nib.save(out_nii, f"work/self2self3d/image/images0225/3d_output_{itr+1}.nii.gz")  
+            nib.save(out_nii, f"self2self3d/image/3d_output_{itr+1}.nii.gz")  
 
             #torch.save(model.state_dict(), f"model_{itr+1}.pth")
