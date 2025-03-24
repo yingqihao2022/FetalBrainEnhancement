@@ -37,29 +37,3 @@ def block_ind(mask, sz_block=64, sz_pad=0):
                 count = count + 1
     ind_block = ind_block.astype(int)
     return ind_block, ind_brain
-
-# def block2brain(blocks, inds, mask):  
-#     vol_brain = np.zeros([mask.shape[0], mask.shape[1], mask.shape[2]])  
-#     vol_count = np.zeros([mask.shape[0], mask.shape[1], mask.shape[2]])  
-
-#     for tt in np.arange(inds.shape[0]):  
-#         inds_this = inds[tt, :]  
-#         vol_brain[inds_this[0]:inds_this[1]+1,   
-#                   inds_this[2]:inds_this[3]+1,   
-#                   inds_this[4]:inds_this[5]+1] = blocks[tt]  
-#         vol_count[inds_this[0]:inds_this[1]+1,   
-#                   inds_this[2]:inds_this[3]+1,   
-#                   inds_this[4]:inds_this[5]+1] += 1  
-                  
-# mask = np.zeros((200, 200, 200), dtype=bool) 
-
-# mask[50:150, 60:140, 70:130] = 1
-
-# nii_image = nib.load('/data/birth/lmx/work/Class_projects/course5/dataset/Fetal_Brain_dataset/GMH_IVH_data/img/pa056.nii.gz')  
-
-# # 获取图像数据  
-# image_data = nii_image.get_fdata()  
-
-# ind_block, ind_brain = block_ind(image_data)
-# print(ind_block,ind_brain)
-# print(ind_block.shape)
