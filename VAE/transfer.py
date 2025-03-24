@@ -27,13 +27,13 @@ def process(data_path, mask_path = None, use_mask = True):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     nib.save(brain_save, output_path)
 
-
-datapath = Path("/your/brain/path")
-maskpath = Path("/your/mask/path") # optional 
-
-datapaths = sorted([datapath / f for f in os.listdir(datapath)])
-maskpaths = sorted([maskpath / f for f in os.listdir(maskpath)])
-print(len(datapaths), len(maskpaths))
-# assert len(datapaths) == len(maskpaths)
-for idx in tqdm(range(len(datapaths))):
-    process(datapaths[idx], maskpaths[idx], use_mask = False)
+if __name__ == "__main__":  
+    datapath = Path("/your/brain/path")
+    maskpath = Path("/your/mask/path") # optional 
+    
+    datapaths = sorted([datapath / f for f in os.listdir(datapath)])
+    maskpaths = sorted([maskpath / f for f in os.listdir(maskpath)])
+    print(len(datapaths), len(maskpaths))
+    # assert len(datapaths) == len(maskpaths)
+    for idx in tqdm(range(len(datapaths))):
+        process(datapaths[idx], maskpaths[idx], use_mask = False)
